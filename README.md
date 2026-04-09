@@ -1,6 +1,6 @@
 # 2D Survival Game
 
-## Commit History:
+## Commit History: (Commit History intendendly excludes Readme updates)
 
 HansKnolle08 (9. April 2026 um 12:49)
 
@@ -66,5 +66,19 @@ Commit 09.04.26 16:23
 2 files changed, 76 insertions(+)
 
 9c650135d24a3b331b6da3bfc19f092475afd386
+
+---
+
+HansKnolle08 (9. April 2026 um 21:56)
+
+Commit 09.04.2026 21:56
+
+-Added Health and Food System
+-Added food which randomly generates in the world. Restores Hunger
+-Added an Inventory System (Base Structure)
+
+7 files changed, 224 insertions(+), 5 deletions(-)
+
+5beb3767193ea5fb01be174a715e6219af3564a8
 
 ---
