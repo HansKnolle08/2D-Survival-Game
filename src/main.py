@@ -6,6 +6,7 @@ import sys
 from game.logic.core.config import WIDTH, HEIGHT, FPS, TITLE, TILE_SIZE, COLORS
 from game.logic.world.world import World
 from game.logic.entities.player import Player
+from game.logic.systems.renderer import *
 
 # Main Function
 def main():
@@ -47,37 +48,13 @@ def main():
         camera_y = player.y - HEIGHT // 2
 
         # --- RENDERER ---
-        screen.fill((30, 30, 30))
+        screen.fill((30, 30, 30)) # Background will be removed when world is endless
 
         # Draw World
-        for y in range(world.height):
-            for x in range(world.width):
-                tile = world.get_tile(x, y)
-                color = COLORS[tile]
-
-                screen_x = x * TILE_SIZE - camera_x
-                screen_y = y * TILE_SIZE - camera_y
-
-                rect = (
-                    screen_x,
-                    screen_y,
-                    TILE_SIZE,
-                    TILE_SIZE
-                )
-
-                pygame.draw.rect(screen, color, rect)
+        render_world(world, screen, COLORS, TILE_SIZE, camera_x, camera_y)
 
         # Draw Player
-        pygame.draw.rect(
-            screen,
-            (200, 50, 50),
-            (
-                player.x - camera_x,
-                player.y - camera_y,
-                TILE_SIZE // 2,
-                TILE_SIZE // 2
-            )
-        )
+        render_player(player, screen, TILE_SIZE, camera_x, camera_y)
 
         pygame.display.flip()
         clock.tick(FPS)
