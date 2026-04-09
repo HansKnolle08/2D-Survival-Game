@@ -7,7 +7,7 @@ from game.logic.core.config import WIDTH, HEIGHT, FPS, TITLE, TILE_SIZE, COLORS
 from game.logic.world.world import World
 from game.logic.entities.player import Player
 
-
+# Main Function
 def main():
     # Initialize Pygame
     pygame.init()
@@ -20,6 +20,7 @@ def main():
     # Initialize Game Systems
     world = World(50, 50)
     player = Player(100, 100)
+    dt = clock.tick(FPS) / 1000
 
     # Game State
     running = True
@@ -34,13 +35,13 @@ def main():
         # --- UPDATE ---
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            player.y -= player.speed
+            player.y -= player.speed * dt
         if keys[pygame.K_s]:
-            player.y += player.speed
+            player.y += player.speed * dt
         if keys[pygame.K_a]:
-            player.x -= player.speed
+            player.x -= player.speed * dt
         if keys[pygame.K_d]:
-            player.x += player.speed
+            player.x += player.speed * dt
 
         camera_x = player.x - WIDTH // 2
         camera_y = player.y - HEIGHT // 2
