@@ -53,3 +53,18 @@ Commit 09.04.2026 16:13
 6 files changed, 66 insertions(+), 18 deletions(-)
 
 df30c1ef268feb799e7cf0e033071fe847c9d324
+
+---
+
+HansKnolle08 (9. April 2026 um 16:24)
+
+Commit 09.04.26 16:23
+
+- Added License
+- Added Readme
+
+2 files changed, 76 insertions(+)
+
+9c650135d24a3b331b6da3bfc19f092475afd386
+
+---
