@@ -1,6 +1,12 @@
 import pygame
 
-def render_player(player, screen, TILE_SIZE, camera_x, camera_y):
+from game.logic.entities.player import *
+from game.logic.world.world import *
+
+def render_player(player: Player, screen: pygame.Surface, TILE_SIZE: int, camera_x: int, camera_y: int) -> None:
+    """
+    Render the player as a red rectangle on the screen, adjusted for camera position.
+    """
     pygame.draw.rect(
         screen,
         (200, 50, 50),
@@ -12,7 +18,10 @@ def render_player(player, screen, TILE_SIZE, camera_x, camera_y):
         )
     )
 
-def render_world(world, screen, COLORS, TILE_SIZE, camera_x, camera_y):
+def render_world(world: World, screen: pygame.Surface, COLORS: dict, TILE_SIZE: int, camera_x: int, camera_y: int) -> None:
+    """
+    Render the world tiles on the screen, adjusted for camera position.
+    """
     for y in range(world.height):
         for x in range(world.width):
             tile = world.get_tile(x, y)

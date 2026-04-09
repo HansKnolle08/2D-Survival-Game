@@ -4,6 +4,7 @@ import sys
 
 # Local Imports
 from game.logic.core.config import WIDTH, HEIGHT, FPS, TITLE, TILE_SIZE, COLORS
+from game.logic.core.update import *
 from game.logic.world.world import World
 from game.logic.entities.player import Player
 from game.logic.systems.renderer import *
@@ -21,32 +22,23 @@ def main():
     # Initialize Game Systems
     world = World(50, 50)
     player = Player(100, 100)
-    dt = clock.tick(FPS) / 1000
 
     # Game State
     running = True
 
     # Game Loop
     while running:
+        # Handle user input and system events
         # --- EVENTS ---
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             
+        # Update game state, including player movement and camera positioning
         # --- UPDATE ---
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            player.y -= player.speed * dt
-        if keys[pygame.K_s]:
-            player.y += player.speed * dt
-        if keys[pygame.K_a]:
-            player.x -= player.speed * dt
-        if keys[pygame.K_d]:
-            player.x += player.speed * dt
+        camera_x, camera_y, delta = update(player, clock, FPS, WIDTH, HEIGHT)
 
-        camera_x = player.x - WIDTH // 2
-        camera_y = player.y - HEIGHT // 2
-
+        # Render the game world and entities to the screen
         # --- RENDERER ---
         screen.fill((30, 30, 30)) # Background will be removed when world is endless
 
