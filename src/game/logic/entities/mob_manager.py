@@ -109,7 +109,7 @@ class MobManager:
                     self.spawn_timers[species] = MOB_SPAWN_SETTINGS[species]["spawn_interval"]
 
         for mob in self.mobs:
-            mob.update(delta, self.world, self.player)
+            mob.update(delta, self.world)
 
         self.mobs = [mob for mob in self.mobs if mob.is_alive]
 

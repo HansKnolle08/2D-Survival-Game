@@ -182,3 +182,16 @@ Commit 10.04.2026 15:07
 e8537099b02d6c494ec7ccb2fee26b967ea4f6a4
 
 ---
+
+HansKnolle08 (10. April 2026 um 16:24)
+
+Commit 10.04.2026 16:24
+
+- Fixed some minor bugs
+- Refactored the whole code base with type annotations, comments and a header comment
+
+21 files changed, 291 insertions(+), 65 deletions(-)
+
+72fc5d02f5245c168329180b8aaa83b157d0b791
+
+---

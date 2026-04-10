@@ -88,11 +88,11 @@ class Mob(Entity):
         self.damage_timer = 0.0
 
     # Update mob behavior each frame
-    def update(self, delta: float, world, player) -> None:
+    def update(self, delta: float, world) -> None:
         if not self.is_alive:
             return
         self.damage_timer = max(0.0, self.damage_timer - delta)
-        self.update_ai(delta, world, player)
+        self.update_ai(delta, world)
 
     # Simple AI: flee from player if recently attacked, otherwise wander
     def update_ai(self, delta: float, world) -> None:
