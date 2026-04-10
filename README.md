@@ -122,3 +122,16 @@ Commit 10.04.2026 12:58
 1dd3c91daf56bc5c5dfe69e0b98c9ab1f26f4ba9
 
 ---
+
+HansKnolle08 (10. April 2026 um 14:04) 
+
+Commit 10.05.2026 14:03 (Little typo in commit message, its the 10.04.26)
+
+- Added Entity Structure with an Entity and Mob class, a mob manager and the first mob a sheep which extends the mob class
+- Added hitting mechanic and mob loot dropping
+
+12 files changed, 389 insertions(+), 17 deletions(-)
+
+1bafa1462ce1ffc8f157f9cca640502d1c046432
+
+---
