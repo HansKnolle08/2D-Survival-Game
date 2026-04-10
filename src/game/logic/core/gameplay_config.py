@@ -1,4 +1,12 @@
-# Gameplay tuning values and defaults
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Configuration Constants relevant to the gameplay mechanics, such as spawn protection, 
+breaking properties, tree properties. May be changed (future) in the runtime by the player via a settings menu.
+
+src/game/logic/core/gameplay_config.py
+"""
 
 # Spawn protection zone around the player
 SPAWN_PROTECTION_RANGE = 3

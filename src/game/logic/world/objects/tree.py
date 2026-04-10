@@ -1,9 +1,21 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Definition of the Tree Object, representing tree objects that occupy 
+multiple tiles in the game world. Each tree has health, can be damaged, 
+and provides methods for determining its occupied tiles and collision area.
+
+src/game/logic/world/objects/tree.py
+"""
+# Local imports
 from game.logic.core.config import TILE_SIZE
 from game.logic.core.gameplay_config import TREE_HEALTH, TREE_SIZE
 
+# Define the Tree class, which represents a tree object in the game world.
 class Tree:
     """
-    Represents a large tree object occupying multiple tiles.
+    Represents a tree object occupying multiple tiles.
     """
     size = TREE_SIZE
 
@@ -46,6 +58,7 @@ class Tree:
         )
 
     def get_center(self) -> tuple[float, float]:
+        """Return the pixel coordinates of the tree's center for rendering."""
         rect = self.get_draw_rect()
         return (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
 

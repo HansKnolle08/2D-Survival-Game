@@ -168,3 +168,17 @@ Commit 10.04.2026 14:24
 71ea913312dabf48ac614456d931de13534c3a54
 
 ---
+
+HansKnolle08 (10. April 2026 um 15:07)
+
+Commit 10.04.2026 15:07
+
+- Readded the Hunger System
+- Improved Mob Hittign mechanism
+- Reimplemented items as there own objects
+
+11 files changed, 163 insertions(+), 5 deletions(-)
+
+e8537099b02d6c494ec7ccb2fee26b967ea4f6a4
+
+---

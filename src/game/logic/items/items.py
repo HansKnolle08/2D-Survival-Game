@@ -1,5 +1,18 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Definition of inventory items used in the game, including food items and placeable materials. 
+This module provides a base Item class and a FoodItem subclass for consumable items that 
+restore hunger and health. It also includes a registry of available items for easy lookup.
+
+src/game/logic/items/items.py
+"""
+
+# Local imports
 from game.logic.core.gameplay_config import HAM_HEALTH_RESTORE, HAM_HUNGER_RESTORE, STACK_LIMIT
 
+# Base item class for inventory items. 
 class Item:
     """Base item definition for inventory-only objects."""
     def __init__(self, name: str, display_name: str, stack_limit: int = STACK_LIMIT, can_place: bool = False) -> None:
@@ -12,6 +25,7 @@ class Item:
     def __repr__(self) -> str:
         return f"Item(name={self.name}, display_name={self.display_name})"
 
+# FoodItem inherits from Item and adds hunger and health restoration properties.
 class FoodItem(Item):
     """A consumable food item that restores hunger and optionally health."""
     def __init__(self, name: str, display_name: str, hunger_restore: int, health_restore: int = 0, stack_limit: int = STACK_LIMIT) -> None:
@@ -29,6 +43,7 @@ WOOD = Item("wood", "Wood", can_place=True)
 STONE = Item("stone", "Stone", can_place=True)
 COPPER = Item("copper", "Copper", can_place=True)
 
+# Registry of items for easy lookup by name.
 ITEM_REGISTRY = {
     HAM.name: HAM,
     WOOD.name: WOOD,
@@ -36,6 +51,6 @@ ITEM_REGISTRY = {
     COPPER.name: COPPER,
 }
 
-
+# Helper function to get item definitions by name.
 def get_item_definition(item_name: str):
     return ITEM_REGISTRY.get(item_name)

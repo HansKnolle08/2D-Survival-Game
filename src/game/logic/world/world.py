@@ -1,5 +1,16 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Define the World class, which represents the game world as a 2D grid of tiles and contains objects like trees.
+
+src/game/logic/world/world.py
+"""
+
+# Global imports
 import random
 
+# Local imports
 from game.logic.core.gameplay_config import SPAWN_PROTECTION_RANGE
 from game.logic.world.objects.tree import Tree
 
@@ -76,12 +87,5 @@ class World:
     def get_tile(self, x, y):
         """
         Get the tile type at the specified coordinates.
-        
-        Args:
-            x (int): X-coordinate
-            y (int): Y-coordinate
-            
-        Returns:
-            str: Tile type
         """
         return self.tiles[y][x]

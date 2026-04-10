@@ -1,5 +1,16 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Inventory system for managing player items, hotbar, and main inventory.
+
+src/game/logic/systems/inventory.py
+"""
+
+# Local imports
 from game.logic.core.gameplay_config import HOTBAR_SIZE, INVENTORY_ROWS, INVENTORY_COLS, STACK_LIMIT
 
+# Inventory system with hotbar and main inventory.
 class Inventory:
     """
     Inventory system with hotbar and main inventory.
@@ -15,6 +26,7 @@ class Inventory:
         self.inventory_open = False
         self.held_item = None
 
+    # Inventory management methods for adding, removing, picking up, and placing items.
     def toggle_inventory(self):
         """Toggle the inventory open/closed."""
         self.inventory_open = not self.inventory_open
@@ -61,25 +73,6 @@ class Inventory:
                     return True
         return False
 
-    def _stack_item(self, item_name: str, amount: int, slot_range):
-        """Stack items into existing matching slots."""
-        for i in slot_range:
-            slot = self.slots[i]
-            if slot and slot['item'] == item_name:
-                capacity = STACK_LIMIT - slot['count']
-                if capacity >= amount:
-                    slot['count'] += amount
-                    return True
-        return False
-
-    def _empty_slot(self, item_name: str, amount: int, slot_range):
-        """Place items into the first empty slot in a range."""
-        for i in slot_range:
-            if self.slots[i] is None:
-                self.slots[i] = {'item': item_name, 'count': amount}
-                return True
-        return False
-
     def can_add_item(self, item_name: str, amount: int = 1):
         """Return True if the inventory can accept this item amount."""
         capacity = 0
@@ -96,20 +89,7 @@ class Inventory:
             elif slot['item'] == item_name:
                 capacity += STACK_LIMIT - slot['count']
         return capacity >= amount
-
-    def _can_stack(self, item_name: str, slot_range):
-        for i in slot_range:
-            slot = self.slots[i]
-            if slot and slot['item'] == item_name:
-                return slot['count'] < STACK_LIMIT
-        return False
-
-    def _can_empty(self, slot_range):
-        for i in slot_range:
-            if self.slots[i] is None:
-                return True
-        return False
-
+    
     def pick_up(self, slot_index: int) -> bool:
         """Pick up an item stack from the given slot into the cursor."""
         if 0 <= slot_index < self.total_slots and self.slots[slot_index]:
@@ -159,3 +139,36 @@ class Inventory:
     def is_inventory_open(self):
         """Check if inventory is open."""
         return self.inventory_open
+    
+    # Helper methods for stacking and placing items, used internally by add_item and place_item.
+    def _stack_item(self, item_name: str, amount: int, slot_range):
+        """Stack items into existing matching slots."""
+        for i in slot_range:
+            slot = self.slots[i]
+            if slot and slot['item'] == item_name:
+                capacity = STACK_LIMIT - slot['count']
+                if capacity >= amount:
+                    slot['count'] += amount
+                    return True
+        return False
+
+    def _empty_slot(self, item_name: str, amount: int, slot_range):
+        """Place items into the first empty slot in a range."""
+        for i in slot_range:
+            if self.slots[i] is None:
+                self.slots[i] = {'item': item_name, 'count': amount}
+                return True
+        return False
+
+    def _can_stack(self, item_name: str, slot_range):
+        for i in slot_range:
+            slot = self.slots[i]
+            if slot and slot['item'] == item_name:
+                return slot['count'] < STACK_LIMIT
+        return False
+
+    def _can_empty(self, slot_range):
+        for i in slot_range:
+            if self.slots[i] is None:
+                return True
+        return False

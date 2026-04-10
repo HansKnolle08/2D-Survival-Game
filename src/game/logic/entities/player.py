@@ -6,7 +6,6 @@ from game.logic.core.gameplay_config import (
     ATTACK_COOLDOWN,
     ATTACK_DAMAGE,
     PLAYER_BASE_SPEED,
-    RUN_MULTIPLIER,
     MAX_HUNGER,
 )
 from game.logic.items.items import FoodItem, get_item_definition

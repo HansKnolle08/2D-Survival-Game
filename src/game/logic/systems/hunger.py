@@ -1,11 +1,18 @@
-from game.logic.core.gameplay_config import (
-    HUNGER_DECAY_IDLE,
-    HUNGER_DECAY_RUN,
-    HUNGER_DECAY_WALK,
-)
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
 
+System for managing player hunger and its decay over time.
 
-def update_hunger(player, delta: float, is_moving: bool, is_running: bool) -> None:
+src/game/logic/systems/hunger.py
+"""
+
+# Local imports
+from game.logic.core.gameplay_config import HUNGER_DECAY_IDLE, HUNGER_DECAY_RUN, HUNGER_DECAY_WALK
+from game.logic.entities.player import Player
+
+# Update player hunger based on movement state and time delta.
+def update_hunger(player: Player, delta: float, is_moving: bool, is_running: bool) -> None:
     """Update player hunger based on movement state."""
     if is_running:
         decay_rate: float = HUNGER_DECAY_RUN

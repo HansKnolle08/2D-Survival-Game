@@ -1,3 +1,13 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Configuration Constants relevant to the game logic, such as window dimensions, 
+frame rate, and tile size.
+
+src/game/logic/core/config.py
+"""
+
 # Window dimensions
 WIDTH = 1280
 HEIGHT = 720

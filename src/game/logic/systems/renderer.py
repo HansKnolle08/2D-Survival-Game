@@ -1,9 +1,21 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Renderer system for drawing the world, player, mobs, and UI elements on the screen.
+
+src/game/logic/systems/renderer.py
+"""
+
+# Global imports
 import pygame
 
+# Local imports
 from game.logic.core.config import TILE_SIZE
 from game.logic.entities.player import *
 from game.logic.world.world import *
 
+# Calculate the appropriate slot size for inventory and hotbar based on screen dimensions and inventory state.
 def get_slot_size(player: Player, WIDTH: int, HEIGHT: int) -> int:
     """Calculate slot size depending on whether the inventory is open."""
     if player.inventory.is_inventory_open():
@@ -14,7 +26,7 @@ def get_slot_size(player: Player, WIDTH: int, HEIGHT: int) -> int:
         return max(40, min(size, 80))
     return 40
 
-
+# Return the hotbar slot index at the mouse position, if any.
 def get_hotbar_slot_at(mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> int | None:
     """Return the hotbar slot index at the mouse position, if any."""
     slot_size = get_slot_size(player, WIDTH, HEIGHT)
@@ -38,7 +50,7 @@ def get_hotbar_slot_at(mouse_pos: tuple[int, int], player: Player, WIDTH: int, H
                 return i
     return None
 
-
+# Return the inventory slot index under the mouse when inventory is open.
 def get_inventory_slot_at(mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> int | None:
     """Return the inventory slot index under the mouse when inventory is open."""
     if not player.inventory.is_inventory_open():
@@ -64,12 +76,12 @@ def get_inventory_slot_at(mouse_pos: tuple[int, int], player: Player, WIDTH: int
     col = int((mx - grid_x_start) // slot_size)
     return col
 
-
+# Check whether the mouse is over the open inventory UI.
 def is_mouse_over_inventory(mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> bool:
     """Check whether the mouse is over the open inventory UI."""
     return get_inventory_slot_at(mouse_pos, player, WIDTH, HEIGHT) is not None
 
-
+# Return the tree under the cursor, if any.
 def get_tree_under_cursor(world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int]) -> Tree | None:
     """Return the tree under the cursor, if any."""
     mx, my = mouse_pos
@@ -81,7 +93,7 @@ def get_tree_under_cursor(world: World, camera_x: int, camera_y: int, mouse_pos:
         return world.get_tree_at(tile_x, tile_y)
     return None
 
-
+# Return the mob under the cursor, if any.
 def get_mob_under_cursor(mobs: list, camera_x: int, camera_y: int, mouse_pos: tuple[int, int]):
     """Return the mob under the cursor, if any."""
     mx, my = mouse_pos
@@ -95,7 +107,7 @@ def get_mob_under_cursor(mobs: list, camera_x: int, camera_y: int, mouse_pos: tu
             return mob
     return None
 
-
+# Render a hovering selector over the world grid under the cursor.
 def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int, mobs: list | None = None):
     """Render a hovering selector over the world grid under the cursor."""
     if player.inventory.is_inventory_open() and is_mouse_over_inventory(mouse_pos, player, WIDTH, HEIGHT):
@@ -149,7 +161,7 @@ def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, c
         pygame.draw.rect(screen, (0, 0, 0), rect, 2)
     return None
 
-
+# Render the player as a red rectangle on the screen, adjusted for camera position.
 def render_player(player: Player, screen: pygame.Surface, TILE_SIZE: int, camera_x: int, camera_y: int) -> None:
     """
     Render the player as a red rectangle on the screen, adjusted for camera position.
@@ -203,7 +215,7 @@ def render_world(world: World, screen: pygame.Surface, COLORS: dict, TILE_SIZE: 
         )
         pygame.draw.rect(screen, (100, 60, 20), trunk_rect)
 
-
+# Render mobs on top of the world and player.
 def render_mobs(mobs: list, screen: pygame.Surface, TILE_SIZE: int, camera_x: int, camera_y: int) -> None:
     """Render all mobs on the screen."""
     for mob in mobs:
@@ -222,7 +234,7 @@ def render_mobs(mobs: list, screen: pygame.Surface, TILE_SIZE: int, camera_x: in
         pygame.draw.circle(screen, mob.eye_color, (screen_x + mob_rect[2] // 3, screen_y + mob_rect[3] // 3), eye_radius)
         pygame.draw.circle(screen, mob.eye_color, (screen_x + 2 * mob_rect[2] // 3, screen_y + mob_rect[3] // 3), eye_radius)
 
-
+# Render the break progress bar above the tree being broken, if any.
 def render_break_progress(player: Player, screen: pygame.Surface, camera_x: int, camera_y: int) -> None:
     if player.break_target is None or player.break_progress <= 0:
         return
@@ -237,10 +249,10 @@ def render_break_progress(player: Player, screen: pygame.Surface, camera_x: int,
     bar_color = (0, 180, 0) if player.inventory.can_add_item("wood", 4) else (180, 0, 0)
     pygame.draw.rect(screen, bar_color, (bar_x, bar_y, int(bar_width * fill_ratio), bar_height))
 
-
+# Render the player's health bar, hunger bar, and inventory/hotbar UI.
 def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int, mouse_pos: tuple[int, int]) -> None:
     """
-    Render health bar and hotbar/inventory UI.
+    Render health bar, hunger bar and hotbar/inventory UI.
     """
     bar_width = 200
     bar_height = 20

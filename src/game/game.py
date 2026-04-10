@@ -1,3 +1,13 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Main game loop and initialization. 
+Handles user input, game state updates, and rendering.
+
+src/game/game.py
+"""
+
 # Global Imports
 import pygame
 import sys

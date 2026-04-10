@@ -1,11 +1,26 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+MobManager class to handle spawning and updating mobs in the game world. This includes
+managing spawn timers, ensuring mobs don't spawn in protected areas, and updating mob behavior each frame.
+
+src/game/logic/entities/mob_manager.py
+"""
+
+# Global imports
 import random
 
+# Local imports
 from game.logic.core.config import TILE_SIZE
 from game.logic.core.gameplay_config import MOB_SPAWN_SETTINGS
 from game.logic.entities.mobs.sheep import Sheep
 
+# MobManager class to handle spawning and updating mobs
 class MobManager:
     """Manage a collection of mobs and update their behavior."""
+
+    # Mapping of species names to their corresponding mob classes
     MOB_CLASSES = {
         "sheep": Sheep,
     }
@@ -20,11 +35,13 @@ class MobManager:
         }
         self.spawn_initial_mobs()
 
+    # Spawn initial mobs up to their maximum counts
     def spawn_initial_mobs(self) -> None:
         for species, settings in MOB_SPAWN_SETTINGS.items():
             for _ in range(settings["max_count"]):
                 self.try_spawn_species(species)
 
+    # Attempt to spawn mobs of a specific species if under the max count
     def spawn_mobs(self, species: str) -> bool:
         settings = MOB_SPAWN_SETTINGS[species]
         current = self.count_species(species)
@@ -32,6 +49,7 @@ class MobManager:
             return False
         return self.try_spawn_species(species)
 
+    # Try to spawn a mob of the given species at a random valid location
     def try_spawn_species(self, species: str) -> bool:
         mob_class = self.MOB_CLASSES.get(species)
         if mob_class is None:
@@ -48,9 +66,11 @@ class MobManager:
             tries += 1
         return False
 
+    # Count how many mobs of a specific species currently exist
     def count_species(self, species: str) -> int:
         return sum(1 for mob in self.mobs if getattr(mob, "species", None) == species)
 
+    # Check if a mob can spawn at the given tile coordinates
     def can_spawn_at(self, tile_x: int, tile_y: int) -> bool:
         if self.world.is_in_spawn_protection(tile_x, tile_y):
             return False
@@ -68,11 +88,13 @@ class MobManager:
 
         return True
 
+    # Check if two rectangles overlap (used for spawn location validation)
     def rects_overlap(self, a, b) -> bool:
         ax, ay, aw, ah = a
         bx, by, bw, bh = b
         return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
 
+    # Update all mobs each frame, handle spawning new mobs, and remove dead mobs
     def update(self, delta: float) -> None:
         self.spawn_timers = {
             species: timer - delta
@@ -91,5 +113,6 @@ class MobManager:
 
         self.mobs = [mob for mob in self.mobs if mob.is_alive]
 
+    # Get the list of current mobs (for rendering or other purposes)
     def get_mobs(self):
         return self.mobs

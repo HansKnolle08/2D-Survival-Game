@@ -1,10 +1,23 @@
+"""
+MIT License
+Copyright (c) 2026 [HansKnolle08]
+
+Update function that processes player input, updates the player's position, handles collisions,
+and updates the player's hunger status. This function is called every frame in the main game loop.
+
+src/game/logic/core/update.py
+"""
+
+# Global imports
 import pygame
 
+# Local imports
 from game.logic.core.gameplay_config import RUN_MULTIPLIER
 from game.logic.entities.player import *
 from game.logic.systems.hunger import update_hunger
 from game.logic.world.world import World
 
+# Main update function
 def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WIDTH: int, HEIGHT: int) -> tuple[float, float, float]:
     # Calculate time elapsed since last frame for smooth movement
     delta = clock.tick(FPS) / 1000
@@ -17,6 +30,8 @@ def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WID
     player.speed = player.base_speed * (RUN_MULTIPLIER if player.is_running else 1.0)
 
     is_moving = False
+    
+    # Use WASD for movement, allowing diagonal movement when multiple keys are pressed
     if keys[pygame.K_w]:
         player.y -= player.speed * delta
         is_moving = True
@@ -44,6 +59,7 @@ def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WID
             player.y = old_y
             break
 
+    # Update player state and hunger
     player.update(delta)
     update_hunger(player, delta, is_moving, player.is_running)
 
