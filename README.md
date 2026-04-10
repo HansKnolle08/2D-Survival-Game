@@ -96,3 +96,17 @@ ff5377532b837ca6dcff49fef971268cc4d2d7a0
 
 ---
 
+HansKnolle08 (10. April 2026 um 12:56)
+
+Commit 10.04.2626 12:56
+
+- Added first world Object: Trees
+- Added Breaking and resource gaining mechanic
+- Tweaked Player Generation and UI looks and feels a bit
+- Moved gameplay relevant Variables and Constants to gameplay_config.py
+
+9 files changed, 471 insertions(+), 54 deletions(-)
+
+ac79b94de44ef71a83ec40c80b448ab271bb3fb1
+
+---
