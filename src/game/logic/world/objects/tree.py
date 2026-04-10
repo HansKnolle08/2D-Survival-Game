@@ -45,6 +45,10 @@ class Tree:
             TILE_SIZE * 2,
         )
 
+    def get_center(self) -> tuple[float, float]:
+        rect = self.get_draw_rect()
+        return (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+
     def get_center_tile(self) -> tuple[float, float]:
         """Return the floating center tile coordinates for range checks."""
         return self.x + self.size / 2.0, self.y + self.size / 2.0

@@ -110,3 +110,15 @@ Commit 10.04.2626 12:56
 ac79b94de44ef71a83ec40c80b448ab271bb3fb1
 
 ---
+
+HansKnolle08 (10. April 2026 um 12:58)
+
+Commit 10.04.2026 12:58
+
+- Small refactoring in gameplay_config.py
+
+2 files changed, 20 insertions(+), 4 deletions(-)
+
+1dd3c91daf56bc5c5dfe69e0b98c9ab1f26f4ba9
+
+---

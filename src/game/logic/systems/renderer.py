@@ -82,7 +82,21 @@ def get_tree_under_cursor(world: World, camera_x: int, camera_y: int, mouse_pos:
     return None
 
 
-def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> Tree | None:
+def get_mob_under_cursor(mobs: list, camera_x: int, camera_y: int, mouse_pos: tuple[int, int]):
+    """Return the mob under the cursor, if any."""
+    mx, my = mouse_pos
+    world_x = camera_x + mx
+    world_y = camera_y + my
+    for mob in mobs:
+        if not getattr(mob, "is_alive", False):
+            continue
+        rect = mob.get_rect()
+        if rect[0] <= world_x <= rect[0] + rect[2] and rect[1] <= world_y <= rect[1] + rect[3]:
+            return mob
+    return None
+
+
+def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int, mobs: list | None = None):
     """Render a hovering selector over the world grid under the cursor."""
     if player.inventory.is_inventory_open() and is_mouse_over_inventory(mouse_pos, player, WIDTH, HEIGHT):
         return None
@@ -102,6 +116,23 @@ def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, c
         screen.blit(overlay, (rect.x, rect.y))
         pygame.draw.rect(screen, color, rect, 4)
         return hovered_tree
+
+    hovered_mob = None
+    if mobs is not None:
+        hovered_mob = get_mob_under_cursor(mobs, camera_x, camera_y, mouse_pos)
+    if hovered_mob is not None:
+        rect = pygame.Rect(
+            hovered_mob.get_rect()[0] - camera_x,
+            hovered_mob.get_rect()[1] - camera_y,
+            hovered_mob.get_rect()[2],
+            hovered_mob.get_rect()[3]
+        )
+        color = (255, 120, 0) if player.can_interact_with(hovered_mob) else (255, 220, 0)
+        overlay = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+        overlay.fill((255, 120, 0, 40) if player.can_interact_with(hovered_mob) else (255, 220, 0, 40))
+        screen.blit(overlay, (rect.x, rect.y))
+        pygame.draw.rect(screen, color, rect, 4)
+        return hovered_mob
 
     mx, my = mouse_pos
     world_x = camera_x + mx
@@ -171,6 +202,20 @@ def render_world(world: World, screen: pygame.Surface, COLORS: dict, TILE_SIZE: 
             TILE_SIZE // 2,
         )
         pygame.draw.rect(screen, (100, 60, 20), trunk_rect)
+
+
+def render_mobs(mobs: list, screen: pygame.Surface, TILE_SIZE: int, camera_x: int, camera_y: int) -> None:
+    """Render all mobs on the screen."""
+    for mob in mobs:
+        if not mob.is_alive:
+            continue
+        mob_rect = mob.get_rect()
+        screen_x = mob_rect[0] - camera_x
+        screen_y = mob_rect[1] - camera_y
+        pygame.draw.rect(screen, mob.color, (screen_x, screen_y, mob_rect[2], mob_rect[3]))
+        eye_radius = max(2, TILE_SIZE // 16)
+        pygame.draw.circle(screen, mob.eye_color, (screen_x + mob_rect[2] // 3, screen_y + mob_rect[3] // 3), eye_radius)
+        pygame.draw.circle(screen, mob.eye_color, (screen_x + 2 * mob_rect[2] // 3, screen_y + mob_rect[3] // 3), eye_radius)
 
 
 def render_break_progress(player: Player, screen: pygame.Surface, camera_x: int, camera_y: int) -> None:

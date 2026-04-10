@@ -18,3 +18,27 @@ HOTBAR_SIZE = 9
 INVENTORY_ROWS = 3
 INVENTORY_COLS = 9
 STACK_LIMIT = 64
+
+# Interaction ranges
+INTERACTION_RANGE = 3
+BREAK_RANGE = INTERACTION_RANGE
+
+# Attack properties
+ATTACK_DAMAGE = 7
+ATTACK_COOLDOWN = 0.3
+
+# Loot properties
+SHEEP_LOOT_ITEM = "ham"
+SHEEP_LOOT_AMOUNT_MIN = 1
+SHEEP_LOOT_AMOUNT_MAX = 3
+
+# Mob spawn configuration per species
+MOB_SPAWN_SETTINGS = {
+    "sheep": {
+        "max_count": 4,
+        "spawn_interval": 8.0,
+        "spawn_attempts": 20,
+    },
+    # Add future mob settings here, e.g.:
+    # "cow": {"max_count": 6, "spawn_interval": 6.0, "spawn_attempts": 25},
+}

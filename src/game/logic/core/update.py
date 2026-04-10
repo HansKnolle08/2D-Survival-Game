@@ -34,6 +34,8 @@ def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WID
             player.y = old_y
             break
 
+    player.update(delta)
+
     # Center camera on player
     camera_x = player.x - WIDTH // 2
     camera_y = player.y - HEIGHT // 2
