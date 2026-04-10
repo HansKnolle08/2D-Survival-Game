@@ -155,3 +155,16 @@ Edited Readme
 23346e620833903633d8fa0eb339d628fe338799
 
 ---
+
+HansKnolle08 (10. April 2026 um 14:24)
+
+Commit 10.04.2026 14:24
+
+- Added an actual readme and moved Commit history to its own Markdown file
+- Moved the current game implementation from src/main.py to src/game/game.py to keep the entry point clean
+
+5 files changed, 322 insertions(+), 250 deletions(-)
+
+71ea913312dabf48ac614456d931de13534c3a54
+
+---

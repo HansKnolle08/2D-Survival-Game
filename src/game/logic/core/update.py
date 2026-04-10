@@ -1,6 +1,8 @@
 import pygame
 
+from game.logic.core.gameplay_config import RUN_MULTIPLIER
 from game.logic.entities.player import *
+from game.logic.systems.hunger import update_hunger
 from game.logic.world.world import World
 
 def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WIDTH: int, HEIGHT: int) -> tuple[float, float, float]:
@@ -11,14 +13,22 @@ def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WID
 
     # Handle player input for movement
     keys = pygame.key.get_pressed()
+    player.is_running = keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]
+    player.speed = player.base_speed * (RUN_MULTIPLIER if player.is_running else 1.0)
+
+    is_moving = False
     if keys[pygame.K_w]:
         player.y -= player.speed * delta
+        is_moving = True
     if keys[pygame.K_s]:
         player.y += player.speed * delta
+        is_moving = True
     if keys[pygame.K_a]:
         player.x -= player.speed * delta
+        is_moving = True
     if keys[pygame.K_d]:
         player.x += player.speed * delta
+        is_moving = True
 
     # Handle hotbar selection
     for i in range(9):
@@ -35,6 +45,7 @@ def update(player: Player, world: World, clock: pygame.time.Clock, FPS: int, WID
             break
 
     player.update(delta)
+    update_hunger(player, delta, is_moving, player.is_running)
 
     # Center camera on player
     camera_x = player.x - WIDTH // 2

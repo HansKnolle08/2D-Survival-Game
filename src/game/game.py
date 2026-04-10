@@ -51,7 +51,16 @@ def main():
                 if event.key == pygame.K_e:
                     player.inventory.toggle_inventory()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+                if event.button == 3:
+                    if player.inventory.is_inventory_open():
+                        inventory_slot = get_inventory_slot_at(event.pos, player, WIDTH, HEIGHT)
+                        if inventory_slot is not None:
+                            player.eat_slot(inventory_slot)
+                        else:
+                            player.eat_selected()
+                    else:
+                        player.eat_selected()
+                elif event.button == 1:
                     if player.inventory.is_inventory_open():
                         slot_index = get_inventory_slot_at(event.pos, player, WIDTH, HEIGHT)
                         if slot_index is not None:

@@ -6,7 +6,7 @@ from game.logic.core.gameplay_config import SHEEP_LOOT_ITEM, SHEEP_LOOT_AMOUNT_M
 
 class Sheep(Mob):
     """Simple sheep mob with a small health pool and light movement."""
-    def __init__(self, x: float, y: float):
+    def __init__(self, x: float, y: float) -> None:
         super().__init__(x, y, TILE_SIZE // 2, TILE_SIZE // 2, health=20, speed=80.0)
         self.species = "sheep"
         self.color = (240, 240, 240)

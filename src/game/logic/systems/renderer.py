@@ -213,6 +213,11 @@ def render_mobs(mobs: list, screen: pygame.Surface, TILE_SIZE: int, camera_x: in
         screen_x = mob_rect[0] - camera_x
         screen_y = mob_rect[1] - camera_y
         pygame.draw.rect(screen, mob.color, (screen_x, screen_y, mob_rect[2], mob_rect[3]))
+        if getattr(mob, "damage_timer", 0) > 0:
+            flash_opacity = int(150 * min(mob.damage_timer / mob.damage_flash_duration, 1.0))
+            overlay = pygame.Surface((mob_rect[2], mob_rect[3]), pygame.SRCALPHA)
+            overlay.fill((255, 0, 0, flash_opacity))
+            screen.blit(overlay, (screen_x, screen_y))
         eye_radius = max(2, TILE_SIZE // 16)
         pygame.draw.circle(screen, mob.eye_color, (screen_x + mob_rect[2] // 3, screen_y + mob_rect[3] // 3), eye_radius)
         pygame.draw.circle(screen, mob.eye_color, (screen_x + 2 * mob_rect[2] // 3, screen_y + mob_rect[3] // 3), eye_radius)
@@ -249,6 +254,12 @@ def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int, m
     pygame.draw.rect(screen, (255, 0, 0), (margin, margin, bar_width, bar_height))
     health_ratio = player.health / player.max_health
     pygame.draw.rect(screen, (0, 255, 0), (margin, margin, bar_width * health_ratio, bar_height))
+
+    # Hunger bar (dark background, yellow fill)
+    hunger_y = margin + bar_height + 6
+    pygame.draw.rect(screen, (40, 40, 40), (margin, hunger_y, bar_width, bar_height))
+    hunger_ratio = player.hunger / player.max_hunger
+    pygame.draw.rect(screen, (220, 180, 40), (margin, hunger_y, bar_width * hunger_ratio, bar_height))
 
     # Hotbar only when inventory is closed
     if not player.inventory.is_inventory_open():

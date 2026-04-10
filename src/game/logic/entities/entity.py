@@ -66,10 +66,13 @@ class Mob(Entity):
         self.threat_timer = 0.0
         self.threat_source = None
         self.threat_duration = 4.0
+        self.damage_flash_duration = 0.2
+        self.damage_timer = 0.0
 
     def update(self, delta: float, world, player) -> None:
         if not self.is_alive:
             return
+        self.damage_timer = max(0.0, self.damage_timer - delta)
         self.update_ai(delta, world, player)
 
     def update_ai(self, delta: float, world, player) -> None:
@@ -88,6 +91,7 @@ class Mob(Entity):
             self.threat_source = source
             self.threat_timer = self.threat_duration
             self.state = "flee"
+        self.damage_timer = self.damage_flash_duration
 
     def flee_from(self, source, delta: float, world) -> None:
         px, py = source.get_center()
