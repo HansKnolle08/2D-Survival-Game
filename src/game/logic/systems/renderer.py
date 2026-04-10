@@ -18,14 +18,19 @@ def get_slot_size(player: Player, WIDTH: int, HEIGHT: int) -> int:
 def get_hotbar_slot_at(mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> int | None:
     """Return the hotbar slot index at the mouse position, if any."""
     slot_size = get_slot_size(player, WIDTH, HEIGHT)
+    mx, my = mouse_pos
     if player.inventory.is_inventory_open():
+        grid_rows = player.inventory.inventory_rows + 1
+        row_gap = slot_size // 2
+        grid_height = slot_size * grid_rows + row_gap
         grid_x_start = (WIDTH - slot_size * player.inventory.inventory_cols) // 2
-        grid_y_start = (HEIGHT - slot_size * (player.inventory.inventory_rows + 1)) // 2
-        hotbar_y = grid_y_start + player.inventory.inventory_rows * slot_size
+        grid_y_start = (HEIGHT - grid_height) // 2
+        hotbar_y = grid_y_start + player.inventory.inventory_rows * slot_size + row_gap
+        if not (grid_x_start <= mx < grid_x_start + slot_size * player.inventory.inventory_cols):
+            return None
     else:
         hotbar_y = HEIGHT - slot_size - 10
         grid_x_start = (WIDTH - slot_size * player.inventory.hotbar_size) // 2
-    mx, my = mouse_pos
     if hotbar_y <= my < hotbar_y + slot_size:
         for i in range(player.inventory.hotbar_size):
             x = grid_x_start + i * slot_size
@@ -39,18 +44,25 @@ def get_inventory_slot_at(mouse_pos: tuple[int, int], player: Player, WIDTH: int
     if not player.inventory.is_inventory_open():
         return None
     slot_size = get_slot_size(player, WIDTH, HEIGHT)
+    row_gap = slot_size // 2
     grid_rows = player.inventory.inventory_rows + 1
+    grid_height = slot_size * grid_rows + row_gap
     grid_x_start = (WIDTH - slot_size * player.inventory.inventory_cols) // 2
-    grid_y_start = (HEIGHT - slot_size * grid_rows) // 2
+    grid_y_start = (HEIGHT - grid_height) // 2
     mx, my = mouse_pos
-    if not (grid_x_start <= mx < grid_x_start + slot_size * player.inventory.inventory_cols and
-            grid_y_start <= my < grid_y_start + slot_size * grid_rows):
+    if mx < grid_x_start or mx >= grid_x_start + slot_size * player.inventory.inventory_cols:
         return None
-    col = (mx - grid_x_start) // slot_size
-    row = (my - grid_y_start) // slot_size
-    if row < player.inventory.inventory_rows:
-        return player.inventory.hotbar_size + int(row) * player.inventory.inventory_cols + int(col)
-    return int(col)
+    inventory_height = player.inventory.inventory_rows * slot_size
+    if my < grid_y_start or my >= grid_y_start + grid_height:
+        return None
+    if my < grid_y_start + inventory_height:
+        col = int((mx - grid_x_start) // slot_size)
+        row = int((my - grid_y_start) // slot_size)
+        return player.inventory.hotbar_size + row * player.inventory.inventory_cols + col
+    if my < grid_y_start + inventory_height + row_gap:
+        return None
+    col = int((mx - grid_x_start) // slot_size)
+    return col
 
 
 def is_mouse_over_inventory(mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> bool:
@@ -58,10 +70,39 @@ def is_mouse_over_inventory(mouse_pos: tuple[int, int], player: Player, WIDTH: i
     return get_inventory_slot_at(mouse_pos, player, WIDTH, HEIGHT) is not None
 
 
-def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> None:
+def get_tree_under_cursor(world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int]) -> Tree | None:
+    """Return the tree under the cursor, if any."""
+    mx, my = mouse_pos
+    world_x = camera_x + mx
+    world_y = camera_y + my
+    tile_x = int(world_x // TILE_SIZE)
+    tile_y = int(world_y // TILE_SIZE)
+    if 0 <= tile_x < world.width and 0 <= tile_y < world.height:
+        return world.get_tree_at(tile_x, tile_y)
+    return None
+
+
+def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, camera_y: int, mouse_pos: tuple[int, int], player: Player, WIDTH: int, HEIGHT: int) -> Tree | None:
     """Render a hovering selector over the world grid under the cursor."""
     if player.inventory.is_inventory_open() and is_mouse_over_inventory(mouse_pos, player, WIDTH, HEIGHT):
-        return
+        return None
+
+    hovered_tree = get_tree_under_cursor(world, camera_x, camera_y, mouse_pos)
+    if hovered_tree is not None:
+        collision_rect = hovered_tree.get_collision_rect()
+        rect = pygame.Rect(
+            collision_rect[0] - camera_x,
+            collision_rect[1] - camera_y,
+            collision_rect[2],
+            collision_rect[3]
+        )
+        color = (255, 120, 0) if player.can_break_tree(hovered_tree) else (255, 220, 0)
+        overlay = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+        overlay.fill((255, 120, 0, 40) if player.can_break_tree(hovered_tree) else (255, 220, 0, 40))
+        screen.blit(overlay, (rect.x, rect.y))
+        pygame.draw.rect(screen, color, rect, 4)
+        return hovered_tree
+
     mx, my = mouse_pos
     world_x = camera_x + mx
     world_y = camera_y + my
@@ -75,6 +116,7 @@ def render_world_selector(screen: pygame.Surface, world: World, camera_x: int, c
             TILE_SIZE
         )
         pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+    return None
 
 
 def render_player(player: Player, screen: pygame.Surface, TILE_SIZE: int, camera_x: int, camera_y: int) -> None:
@@ -113,7 +155,40 @@ def render_world(world: World, screen: pygame.Surface, COLORS: dict, TILE_SIZE: 
 
             pygame.draw.rect(screen, color, rect)
 
-def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int) -> None:
+    # Draw world objects like trees on top of tiles.
+    for tree in world.trees:
+        tree_rect = tree.get_draw_rect()
+        screen_x = tree_rect[0] - camera_x
+        screen_y = tree_rect[1] - camera_y
+        canopy_center = (screen_x + tree_rect[2] // 2, screen_y + tree_rect[3] // 2)
+        canopy_radius = TILE_SIZE
+
+        pygame.draw.circle(screen, (30, 120, 30), canopy_center, canopy_radius)
+        trunk_rect = pygame.Rect(
+            screen_x + tree_rect[2] // 2 - 6,
+            screen_y + tree_rect[3] - TILE_SIZE // 2,
+            12,
+            TILE_SIZE // 2,
+        )
+        pygame.draw.rect(screen, (100, 60, 20), trunk_rect)
+
+
+def render_break_progress(player: Player, screen: pygame.Surface, camera_x: int, camera_y: int) -> None:
+    if player.break_target is None or player.break_progress <= 0:
+        return
+
+    tree_rect = player.break_target.get_draw_rect()
+    bar_width = tree_rect[2]
+    bar_height = 10
+    fill_ratio = min(player.break_progress / player.break_duration, 1.0)
+    bar_x = tree_rect[0] - camera_x
+    bar_y = tree_rect[1] - camera_y - bar_height - 5
+    pygame.draw.rect(screen, (40, 40, 40), (bar_x, bar_y, bar_width, bar_height))
+    bar_color = (0, 180, 0) if player.inventory.can_add_item("wood", 4) else (180, 0, 0)
+    pygame.draw.rect(screen, bar_color, (bar_x, bar_y, int(bar_width * fill_ratio), bar_height))
+
+
+def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int, mouse_pos: tuple[int, int]) -> None:
     """
     Render health bar and hotbar/inventory UI.
     """
@@ -123,6 +198,7 @@ def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int) -
     slot_size = get_slot_size(player, WIDTH, HEIGHT)
     font_size = max(20, slot_size // 2)
     font = pygame.font.SysFont(None, font_size)
+    hovered_inventory_slot = get_inventory_slot_at(mouse_pos, player, WIDTH, HEIGHT) if player.inventory.is_inventory_open() else None
 
     # Health bar (red background, green fill)
     pygame.draw.rect(screen, (255, 0, 0), (margin, margin, bar_width, bar_height))
@@ -148,8 +224,10 @@ def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int) -
     # Full inventory grid if open
     if player.inventory.is_inventory_open():
         grid_rows = player.inventory.inventory_rows + 1
+        row_gap = slot_size // 2
+        grid_height = slot_size * grid_rows + row_gap
         grid_x_start = (WIDTH - slot_size * player.inventory.inventory_cols) // 2
-        grid_y_start = (HEIGHT - slot_size * grid_rows) // 2
+        grid_y_start = (HEIGHT - grid_height) // 2
         for row in range(grid_rows):
             for col in range(player.inventory.inventory_cols):
                 if row < player.inventory.inventory_rows:
@@ -157,9 +235,15 @@ def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int) -
                 else:
                     slot_index = col
                 x = grid_x_start + col * slot_size
-                y = grid_y_start + row * slot_size
+                y = grid_y_start + row * slot_size + (row_gap if row == player.inventory.inventory_rows else 0)
                 selected = slot_index == player.inventory.selected_slot and row == player.inventory.inventory_rows
-                color = (100, 100, 100) if selected else (50, 50, 50)
+                hovered = slot_index == hovered_inventory_slot and row < player.inventory.inventory_rows
+                if selected:
+                    color = (120, 120, 120)
+                elif hovered:
+                    color = (140, 140, 180)
+                else:
+                    color = (50, 50, 50)
                 pygame.draw.rect(screen, color, (x, y, slot_size, slot_size))
                 pygame.draw.rect(screen, (200, 200, 200), (x, y, slot_size, slot_size), 2)
                 slot = player.inventory.slots[slot_index]
@@ -167,3 +251,9 @@ def render_ui(player: Player, screen: pygame.Surface, WIDTH: int, HEIGHT: int) -
                     text = f"{slot['item'][0].upper()}{slot['count']}"
                     text_surface = font.render(text, True, (255, 255, 255))
                     screen.blit(text_surface, (x + 5, y + 5))
+
+    if player.inventory.held_item is not None:
+        held_text = f"{player.inventory.held_item['item'][0].upper()}{player.inventory.held_item['count']}"
+        text_surface = font.render(held_text, True, (255, 255, 255))
+        mouse_x, mouse_y = mouse_pos
+        screen.blit(text_surface, (mouse_x + 10, mouse_y + 10))

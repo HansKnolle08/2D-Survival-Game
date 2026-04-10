@@ -4,6 +4,7 @@ import sys
 
 # Local Imports
 from game.logic.core.config import WIDTH, HEIGHT, FPS, TITLE, TILE_SIZE, COLORS
+from game.logic.core.gameplay_config import TREE_REWARD_ITEM, TREE_REWARD_AMOUNT, SPAWN_PROTECTION_RANGE
 from game.logic.core.update import *
 from game.logic.world.world import World
 from game.logic.entities.player import Player
@@ -20,14 +21,22 @@ def main():
     pygame.display.set_caption(TITLE)
 
     # Initialize Game Systems
-    world = World(50, 50)
-    player = Player(100, 100)
+    world_width, world_height = 50, 50
+    spawn_tile_x = world_width // 2
+    spawn_tile_y = world_height // 2
+    world = World(world_width, world_height, spawn_protection_center=(spawn_tile_x, spawn_tile_y), spawn_protection_range=SPAWN_PROTECTION_RANGE)
+    player = Player(spawn_tile_x * TILE_SIZE, spawn_tile_y * TILE_SIZE)
+
     # Add some test items to inventory
     player.inventory.add_item("stone", 10)
     player.inventory.add_item("wood", 5)
+    player.inventory.add_item("copper", 3)
 
     # Game State
     running = True
+    mouse_down = False
+    camera_x = player.x - WIDTH // 2
+    camera_y = player.y - HEIGHT // 2
 
     # Game Loop
     while running:
@@ -44,28 +53,43 @@ def main():
                     if player.inventory.is_inventory_open():
                         slot_index = get_inventory_slot_at(event.pos, player, WIDTH, HEIGHT)
                         if slot_index is not None:
-                            if slot_index < player.inventory.hotbar_size:
-                                player.inventory.select_slot(slot_index)
-                            elif player.inventory.slots[slot_index]:
-                                target_slot = player.inventory.selected_slot
-                                target = player.inventory.slots[target_slot]
-                                source = player.inventory.slots[slot_index]
-                                if target is None:
-                                    player.inventory.slots[target_slot] = source
-                                    player.inventory.slots[slot_index] = None
-                                elif target['item'] == source['item']:
-                                    target['count'] += source['count']
-                                    player.inventory.slots[slot_index] = None
+                            if player.inventory.held_item is None:
+                                player.inventory.pick_up(slot_index)
+                            else:
+                                player.inventory.place_item(slot_index)
                     else:
                         hotbar_index = get_hotbar_slot_at(event.pos, player, WIDTH, HEIGHT)
                         if hotbar_index is not None:
                             player.inventory.select_slot(hotbar_index)
-            
+                        else:
+                            hover_tree = get_tree_under_cursor(world, camera_x, camera_y, event.pos)
+                            if hover_tree and player.can_break_tree(hover_tree) and player.inventory.can_add_item(TREE_REWARD_ITEM, TREE_REWARD_AMOUNT):
+                                player.break_target = hover_tree
+                                player.is_breaking = True
+                            else:
+                                player.reset_break()
+                    mouse_down = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    player.reset_break()
+                    mouse_down = False
+
         # Update game state, including player movement and camera positioning
         # --- UPDATE ---
-        camera_x, camera_y, delta = update(player, clock, FPS, WIDTH, HEIGHT)
+        camera_x, camera_y, delta = update(player, world, clock, FPS, WIDTH, HEIGHT)
 
         mouse_pos = pygame.mouse.get_pos()
+        hovered_tree = get_tree_under_cursor(world, camera_x, camera_y, mouse_pos)
+
+        if player.is_breaking and player.break_target is not None:
+            if not mouse_down or hovered_tree != player.break_target or not player.can_break_tree(player.break_target) or not player.inventory.can_add_item(TREE_REWARD_ITEM, TREE_REWARD_AMOUNT):
+                player.reset_break()
+            else:
+                player.break_progress += delta
+                if player.break_progress >= player.break_duration:
+                    if player.inventory.add_item(TREE_REWARD_ITEM, TREE_REWARD_AMOUNT):
+                        world.remove_tree(player.break_target)
+                    player.reset_break()
 
         # Render the game world and entities to the screen
         # --- RENDERER ---
@@ -75,13 +99,16 @@ def main():
         render_world(world, screen, COLORS, TILE_SIZE, camera_x, camera_y)
 
         # Draw world hover selector
-        render_world_selector(screen, world, camera_x, camera_y, mouse_pos, player, WIDTH, HEIGHT)
+        hovered_tree = render_world_selector(screen, world, camera_x, camera_y, mouse_pos, player, WIDTH, HEIGHT)
 
         # Draw Player
         render_player(player, screen, TILE_SIZE, camera_x, camera_y)
 
+        # Draw tree breaking progress
+        render_break_progress(player, screen, camera_x, camera_y)
+
         # Draw UI
-        render_ui(player, screen, WIDTH, HEIGHT)
+        render_ui(player, screen, WIDTH, HEIGHT, mouse_pos)
 
         pygame.display.flip()
         clock.tick(FPS)

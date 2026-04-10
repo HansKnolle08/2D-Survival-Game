@@ -82,3 +82,17 @@ Commit 09.04.2026 21:56
 5beb3767193ea5fb01be174a715e6219af3564a8
 
 ---
+
+HansKnolle08 (10. April 2026 um 07:25)
+
+Commit 10.04.2026 7:25
+
+- Removed Food System
+- Added Mouse Interactions to both World and Inventory
+
+5 files changed, 114 insertions(+), 88 deletions(-)
+
+ff5377532b837ca6dcff49fef971268cc4d2d7a0
+
+---
+
